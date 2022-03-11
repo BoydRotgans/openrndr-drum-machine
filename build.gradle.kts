@@ -34,7 +34,7 @@ val orxFeatures = setOf(
 //  "orx-kinect-v1",
 //  "orx-kotlin-parser",
 //  "orx-mesh-generators",
-//  "orx-midi",
+    "orx-midi",
 //  "orx-no-clear",
     "orx-noise",
 //  "orx-obj-loader",
@@ -102,6 +102,10 @@ dependencies {
 //    implementation(libs.jsoup)
 //    implementation(libs.gson)
 //    implementation(libs.csv)
+
+    implementation("net.compartmental.code:minim:2.2.2") {
+        exclude(group = "org.apache.maven.plugins", module = "maven-javadoc-plugin")
+    }
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlin.logging)
