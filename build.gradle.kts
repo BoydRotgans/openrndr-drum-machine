@@ -53,8 +53,8 @@ val orxFeatures = setOf(
 //  "orx-syphon",
 //  "orx-temporal-blur",
 //  "orx-tensorflow",    
-//  "orx-time-operators",
-//  "orx-timer",
+    "orx-time-operators",
+    "orx-timer",
 //  "orx-triangulation",
 //  "orx-video-profiles",
     null
