@@ -13,23 +13,30 @@ fun main() = application {
     program {
         val minim = Minim(MinimObject())
 
-        class Kick( var name: String)
+        class Kick()
 
-        class Track(
+        class Instrument(
             samplePath: String,
-            var sequence: List<Int>,
         ) {
             var sample = minim.loadSample(samplePath, 512)
+        }
 
-            fun tick(currentTick: Int) {
+        class Track(
+            var sequence: List<Int>,
+        ) {
+            fun tick(instrument: Instrument, currentTick: Int) {
                 if(sequence[currentTick] == 1) {
-                    sample.trigger()
+                    instrument.sample.trigger()
                 }
             }
         }
 
-        class Sequencer(
+        class Bar(var tracks: List<Track>)
 
+        class Sequencer(
+            bpm : Double = 280.0,
+            val instruments : List<Instrument>,
+            val bars : List<Bar>
         ) {
             val event = Event<Kick>("trigger", true)
             val isActive = true
@@ -37,22 +44,23 @@ fun main() = application {
             var tick = 0
             val buckets = 4
             var beat = 0
-
+            var bar = 0
+            var rollingBar = 0
             var interval = 0L
-            val tracks = mutableListOf<Track>()
+            var activeBar : Bar
 
             fun setBPM(bpm: Double) {
                 interval = (60000.0 / bpm).toLong()
             }
 
             init {
-                setBPM(280.0)
+                setBPM(bpm)
+                activeBar = bars[0]
 
                 launch {
                     while (isActive) {
-                        // set interval
                         delay(interval)
-                        event.trigger(Kick("HC00"))
+                        event.trigger(Kick())
                         event.deliver()
                     }
                 }
@@ -61,39 +69,90 @@ fun main() = application {
                     // set new active beat
                     beat = tick % buckets
 
-                    // patch tracks
-                    tracks.forEach {
-                        it.tick(beat)
+                    // patch bars
+                    rollingBar = bar%bars.size
+                    activeBar = bars[rollingBar]
+                    bars[rollingBar].tracks.forEachIndexed { instrumentIndex, track ->
+                        track.tick(instruments[instrumentIndex], beat)
                     }
+
                     tick += 1
+                    if(tick % buckets == 0) {
+                        bar++
+                    }
                 }
             }
         }
 
-        val sequencer = Sequencer()
-        sequencer.tracks.add(Track("data/Roland-TR-808/BD/BD0000.WAV", listOf(0, 1, 0, 0)))
-        sequencer.tracks.add(Track("data/Roland-TR-808/MT/MT75.WAV", listOf(0, 0, 1, 0)))
-        sequencer.tracks.add(Track("data/Roland-TR-808/RS/RS.WAV", listOf(0, 0, 0, 1)))
-        sequencer.tracks.add(Track("data/Roland-TR-808/CP/CP.WAV", listOf(1, 0, 1, 0)))
-        sequencer.tracks.add(Track("data/Roland-TR-808/HC/HC75.WAV", listOf(1, 0, 1, 0)))
+        val sequencer = Sequencer(
+            290.0,
+            listOf(
+                Instrument("data/Roland-TR-808/BD/BD0000.WAV"),
+                Instrument("data/Roland-TR-808/MT/MT75.WAV"),
+                Instrument("data/Roland-TR-808/RS/RS.WAV"),
+                Instrument("data/Roland-TR-808/CP/CP.WAV")
+            ),
+            listOf(
+                Bar(listOf(
+                        Track(listOf(0, 0, 0, 0)),
+                        Track(listOf(0, 1, 0, 1)),
+                        Track(listOf(0, 0, 0, 0)),
+                        Track(listOf(0, 0, 0, 0))
+                )),
+                Bar(listOf(
+                    Track(listOf(0, 0, 0, 0)),
+                    Track(listOf(0, 1, 0, 1)),
+                    Track(listOf(0, 0, 0, 0)),
+                    Track(listOf(0, 1, 0, 1))
+                )),
+                Bar(listOf(
+                    Track(listOf(0, 0, 0, 0)),
+                    Track(listOf(0, 0, 0, 0)),
+                    Track(listOf(0, 0, 0, 0)),
+                    Track(listOf(0, 0, 1, 1))
+                )),
+                Bar(listOf(
+                    Track(listOf(0, 0, 0, 1)),
+                    Track(listOf(0, 0, 1, 0)),
+                    Track(listOf(0, 1, 0, 0)),
+                    Track(listOf(1, 0, 1, 1))
+                )),
+            )
+        )
 
         extend {
-            val boxWidth = (width / sequencer.buckets).toDouble()
-            val boxHeight = (height / sequencer.tracks.size).toDouble()
+            // draw active bar
+            val barWidth = (width / sequencer.bars.size).toDouble()
+            (0 until sequencer.bars.size).forEach {
+                val active = sequencer.rollingBar == it
+                if(active) {
+                    drawer.fill = ColorRGBa.YELLOW
+                } else {
+                    drawer.fill = ColorRGBa.GRAY
+                }
+                drawer.rectangle(it * barWidth, 0.0, barWidth, 20.0)
+            }
 
             // draw sequencer
-            sequencer.tracks.forEachIndexed { index, track ->
+            val boxWidth = (width / sequencer.buckets).toDouble()
+            val boxHeight = ((height-20) / sequencer.instruments.size).toDouble()
+
+            sequencer.instruments.forEachIndexed { index, instrument ->
                 (0 until sequencer.buckets).forEach { x ->
-                    if (x == sequencer.beat) {
+
+                    val filled = sequencer.activeBar.tracks[index].sequence[x] == 1
+                    val active = sequencer.beat == x
+
+                    if(filled) {
                         drawer.fill = ColorRGBa.PINK
                     } else {
-                        if(track.sequence[x] == 1) {
-                            drawer.fill = ColorRGBa.WHITE
-                        } else {
-                            drawer.fill = ColorRGBa.GRAY
-                        }
+                        drawer.fill = ColorRGBa.GRAY
                     }
-                    drawer.rectangle(x * boxWidth, index*boxHeight, boxWidth, boxHeight)
+
+                    if(active && !filled) {
+                        drawer.fill = ColorRGBa.PINK.opacify(0.5)
+                    }
+                    drawer.rectangle(x * boxWidth, 20 + index*boxHeight, boxWidth, boxHeight)
                 }
             }
 
