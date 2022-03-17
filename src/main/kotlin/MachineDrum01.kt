@@ -27,14 +27,14 @@ fun main() = application {
                 Instrument(minim.loadSample("data/Roland-TR-808/CB/CB.WAV", 512))
             ),
             listOf( // bars
-                Bar(listOf(
+                Bar(listOf( // bar 1
                     Track(listOf(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 1
                     Track(listOf(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 2
                     Track(listOf(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 3
                     Track(listOf(0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0)), // instrument 4
                     Track(listOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))  // instrument 5
                 )),
-                Bar(listOf(
+                Bar(listOf( // bar 2
                     Track(listOf(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), // instrument 1
                     Track(listOf(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 2
                     Track(listOf(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 3
@@ -58,7 +58,6 @@ fun main() = application {
 
             // draw notes
             sequencer.drawInstruments(drawer, font)
-
         }
     }
 }
