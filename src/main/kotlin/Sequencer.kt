@@ -7,11 +7,14 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.FontMap
 import org.openrndr.draw.loadFont
+import org.openrndr.extras.color.presets.LIGHT_BLUE
+import org.openrndr.extras.color.presets.LIGHT_GREEN
+import org.openrndr.extras.color.presets.PURPLE
 
+// additional classed required for the sequencer
 class Kick
 class Instrument(val sample: AudioSample)
 class Bar(var tracks: List<Track>)
-
 class Track(
     var sequence: List<Int>,
 ) {
@@ -23,8 +26,8 @@ class Track(
 }
 
 class Sequencer (
-            bpm : Double = 280.0,
-            val notes : Int = 16,
+            bpm : Double = 280.0, // define the default BPM
+            val notes : Int = 16, // define the default Note count
             val instruments : List<Instrument> = listOf(),
             val bars : List<Bar> = listOf(),
             val sequence : List<Int> = listOf()
@@ -41,10 +44,13 @@ class Sequencer (
             var activeSequence = 0
 
             fun setBPM(bpm: Double) {
+                //  There are 60,000 milliseconds in a minute so if you want to work out how long a beat is in milliseconds for any tempo, simply follow the below formula:
+                //  60,000 / BPM = one beat in milliseconds ( source https://guitargearfinder.com/guides/convert-ms-milliseconds-bpm-beats-per-minute-vice-versa/ )
                 interval = (60000.0 / bpm).toLong()
             }
 
             fun start(program: Program) {
+                // start the loop
                 program.launch {
                     while (isActive) {
                         delay(interval)
@@ -78,14 +84,15 @@ class Sequencer (
                 }
             }
 
+            // function for drawing sequencer
             fun drawSequences(drawer: Drawer, font: FontMap) {
                 val width = drawer.width
 
-                val seqBarWidth = (width / sequence.size).toDouble()
+                val seqBarWidth = (width*1.0 / sequence.size)
                 sequence.forEachIndexed { index, it ->
                     val active = activeSequence == index
                     if (active) {
-                        drawer.fill = ColorRGBa.PINK
+                        drawer.fill = ColorRGBa.LIGHT_BLUE
                     } else {
                         drawer.fill = ColorRGBa.GRAY
                     }
@@ -97,6 +104,7 @@ class Sequencer (
                 }
             }
 
+            // function for drawing bars
             fun drawBars(drawer: Drawer, font: FontMap) {
                 val width = drawer.width
 
@@ -104,7 +112,7 @@ class Sequencer (
                 (0 until bars.size).forEach {
                     val active = rollingBar == it
                     if (active) {
-                        drawer.fill = ColorRGBa.PINK
+                        drawer.fill = ColorRGBa.PURPLE
                     } else {
                         drawer.fill = ColorRGBa.GRAY
                     }
@@ -116,6 +124,7 @@ class Sequencer (
                 }
             }
 
+            // function for instruments
             fun drawInstruments(drawer: Drawer, font: FontMap) {
                 val width = drawer.width
                 val height = drawer.height
@@ -129,7 +138,7 @@ class Sequencer (
                         val active = beat == x
 
                         if (filled) {
-                            drawer.fill = ColorRGBa.PINK
+                            drawer.fill = ColorRGBa.LIGHT_GREEN
                         } else {
                             drawer.fill = ColorRGBa.GRAY
                         }
