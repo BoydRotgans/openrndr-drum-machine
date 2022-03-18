@@ -7,6 +7,7 @@ import org.openrndr.draw.loadFont
 fun main() = application {
     configure {
         title = "OPENRNDR 808"
+        windowResizable = true
     }
     program {
         // load minim library
