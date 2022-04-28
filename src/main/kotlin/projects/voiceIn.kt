@@ -6,6 +6,8 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.rectangleBatch
 import org.openrndr.math.Vector2
 import org.openrndr.math.map
+import projects.classes.Marker
+import projects.classes.WaveFormFFT
 import java.lang.Math.log
 
 fun main() = application {
@@ -13,6 +15,7 @@ fun main() = application {
     configure {
         width = 512
         height = 512
+        title = ""
     }
 
     program {
@@ -20,60 +23,26 @@ fun main() = application {
         // load minim library
         val minim = Minim(MinimObject())
 
-        // microphone
-        val microphone = minim.getLineIn(Minim.MONO, 2048, 48000f)
-        val fft = FFT(microphone.bufferSize(), microphone.sampleRate())
-        fft.window(CosineWindow())
+        // waveform
+        val waveFormFFT = WaveFormFFT(minim, width, height)
 
         ended.listen {
             minim.stop()
         }
-        val bufferSize = 1024
 
-        val backgroundNoiseCompensation = mutableListOf<Double>()
-        val backgroundNoiseCompensationStored = mutableListOf<Double>()
-        val wave = mutableListOf<Double>()
+        // add markers
+        waveFormFFT.markers.add(Marker(10, -7.0))
+        waveFormFFT.markers.add(Marker(150, -8.0))
+        waveFormFFT.markers.add(Marker(400, -10.0))
 
-        (0 .. bufferSize).forEach {
-            wave.add(0.0)
-            backgroundNoiseCompensation.add(0.0)
-            backgroundNoiseCompensationStored.add(0.0)
-        }
-
-        fun fixNoise() {
-            backgroundNoiseCompensation.forEachIndexed { index, d ->
-                backgroundNoiseCompensationStored[index] = d
-            }
-        }
         keyboard.keyUp.listen {
             if(it.name == "n") {
-                fixNoise()
+                waveFormFFT.fixNoise()
             }
         }
 
         extend {
-            // draw waveform
-            fft.forward(microphone.mix)
-
-            (0 .. bufferSize).forEach {
-                val bandDB = log(1.0*fft.getBand(it)/fft.timeSize())
-                if(!bandDB.isInfinite()) {
-                    backgroundNoiseCompensation[it] = (bandDB)
-                    val barHeight = bandDB - backgroundNoiseCompensationStored[it]
-                    wave[it] = (wave[it] * 0.9) + ((barHeight) * 0.1)
-                }
-            }
-
-            val waveStrip = mutableListOf<Vector2>()
-            (0 .. bufferSize).forEach {
-                val step = ((width-20) * 1.0 / bufferSize)
-                val map = map(-20.0, 0.0, height*1.0, 0.0, wave[it])
-                waveStrip.add(Vector2(10+it*step, map))
-            }
-
-            drawer.stroke = ColorRGBa.WHITE
-            drawer.strokeWeight = 0.5
-            drawer.lineStrip(waveStrip)
+            waveFormFFT.draw(drawer)
         }
     }
 }
