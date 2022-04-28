@@ -18,17 +18,27 @@ fun main() = application {
 
         // create a sequencer
         val sequencer = Sequencer(
-            120.0, // beats per minute
+            240.0, // beats per minute
             4, // amount of notes
             listOf(  // instruments
-                Instrument(minim.loadSample("data/Roland-TR-808/BD/BD0000.WAV", 512))
+                Instrument(minim.loadSample("data/Roland-TR-808/BD/BD0000.WAV", 512)),
+                Instrument(minim.loadSample("data/Roland-TR-808/CY/CY0010.WAV", 512))
             ),
             listOf( // bars
-                Bar(listOf(
-                    Track(listOf(0, 1, 0, 1))
+                Bar(listOf( // 0
+                    Track(listOf(0, 1, 0, 1)), // first instrument
+                    Track(listOf(1, 0, 1, 0)), // second instrument
+                )),
+                Bar(listOf( // 1
+                    Track(listOf(1, 1, 1, 1)), // first instrument
+                    Track(listOf(0, 0, 1, 0)), // second instrument
+                )),
+                Bar(listOf( // 2
+                    Track(listOf(1, 1, 1, 1)), // first instrument
+                    Track(listOf(1, 1, 1, 0)), // second instrument
                 ))
             ), // the sequence
-            listOf(0)
+            listOf(0, 1, 0, 2)
         )
 
         // start sequencer

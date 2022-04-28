@@ -23,15 +23,15 @@ fun main() = application {
             listOf(  // instruments
                 Instrument(minim.loadSample("data/Roland-TR-808/BD/BD0000.WAV", 512)),
                 Instrument(minim.loadSample("data/Roland-TR-808/MT/MT75.WAV", 512)),
-                Instrument(minim.loadSample("data/Roland-TR-808/RS/RS.WAV", 512)),
+                Instrument(minim.loadSample("data/Roland-TR-808/CY/CY0025.WAV", 512)),
                 Instrument(minim.loadSample("data/Roland-TR-808/CP/CP.WAV", 512)),
                 Instrument(minim.loadSample("data/Roland-TR-808/CB/CB.WAV", 512))
             ),
             listOf( // bars
                 Bar(listOf( // bar 1
-                    Track(listOf(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 1
-                    Track(listOf(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 2
-                    Track(listOf(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 3
+                    Track(listOf(1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 1
+                    Track(listOf(0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 2
+                    Track(listOf(0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)), // instrument 3
                     Track(listOf(0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0)), // instrument 4
                     Track(listOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))  // instrument 5
                 )),
